@@ -1,0 +1,23 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+#root {
+  font-family: "Roboto Mono";
+  font-style: normal;
+  font-optical-sizing: auto;
+  font-weight:500;
+}
+
+.navbar a{
+  text-decoration: none;
+}
+
+ 
+.cards{
+  border-color: rgb(70, 69, 69) !important;
+  /* border-color: #f9fafb !important;
+  border-color: #d1d5db !important; */
+} 
