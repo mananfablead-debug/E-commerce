@@ -11,6 +11,7 @@ import { addToCart } from "../features/cart/cartSlice";
 import { addToWishlist } from "../features/Wishlist/wishlistSlice";
 import { deleteProduct } from "../features/Product/productApiSlice"; 
 import { Modal, Button } from "react-bootstrap"; 
+import toast from "react-hot-toast";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -61,8 +62,14 @@ const ProductDetailPage = () => {
     );
   };
 
- const handleDirectAddTocart = () => {
-    if(!token) return setShowLoginModal(true);
+const handleDirectAddTocart = () => {
+  if (!token) return setShowLoginModal(true);
+
+  const existing = cartItems.find(
+    (item) => item.id === product.id && item.size === selectedSize
+  );
+
+  if (!existing) {
 
     dispatch(
       addToCart({
@@ -71,10 +78,13 @@ const ProductDetailPage = () => {
         price: product.price,
         image: mainImage,
         size: selectedSize,
-      }),
-      navigate("/cart")
-    )
+      })
+    );
+    toast.success(`${product.title} added to cart 🛒`);
   }
+  navigate("/cart");
+};
+
 
   const handleAddToWishlist = () => {
     if (!token) return setShowLoginModal(true);

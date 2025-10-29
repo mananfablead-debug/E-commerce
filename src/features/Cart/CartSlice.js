@@ -1,8 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { makeUserScopedKey } from "../utils/userStorage";
 
 const loadCartFromLocalStorage = () => {
   try {
-    const serializedCart = localStorage.getItem("cart");
+    const serializedCart = localStorage.getItem(makeUserScopedKey("cart"));
     return serializedCart ? JSON.parse(serializedCart) : [];
   } catch {
     return [];
@@ -11,7 +12,7 @@ const loadCartFromLocalStorage = () => {
 
 const loadOrdersFromLocalStorage = () => {
   try {
-    const serializedOrders = localStorage.getItem("orders");
+    const serializedOrders = localStorage.getItem(makeUserScopedKey("orders"));
     return serializedOrders ? JSON.parse(serializedOrders) : [];
   } catch {
     return [];
@@ -20,13 +21,13 @@ const loadOrdersFromLocalStorage = () => {
 
 const saveCartToLocalStorage = (items) => {
   try {
-    localStorage.setItem("cart", JSON.stringify(items));
+    localStorage.setItem(makeUserScopedKey("cart"), JSON.stringify(items));
   } catch {}
 };
 
 const saveOrdersToLocalStorage = (orders) => {
   try {
-    localStorage.setItem("orders", JSON.stringify(orders));
+    localStorage.setItem(makeUserScopedKey("orders"), JSON.stringify(orders));
   } catch {}
 };
 
@@ -39,6 +40,10 @@ const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
+    reloadFromStorageForUser: (state) => {
+      state.items = loadCartFromLocalStorage();
+      state.orders = loadOrdersFromLocalStorage();
+    },
     addToCart: (state, action) => {
       const { id, size } = action.payload;
       const existing = state.items.find(
@@ -66,7 +71,17 @@ const cartSlice = createSlice({
       saveCartToLocalStorage(state.items);
     },
 
-    //  order to history
+    deleteOrder:(state,action) => {
+      const orderId = action.payload;
+      state.orders= state.orders.filter((order) => order.id !== orderId);
+      localStorage.setItem(makeUserScopedKey("orders"),JSON.stringify(state.orders));
+    },
+
+    clearOrders: (state,action) => {
+      state.orders= [];
+      localStorage.setItem(makeUserScopedKey("orders"),JSON.stringify(state.orders));
+    },
+
     completeOrder: (state) => {
       if (state.items.length === 0) return;
 
@@ -96,6 +111,9 @@ export const {
   updateQuantity,
   clearCart,
   completeOrder,
+  deleteOrder,
+  clearOrders,
+  reloadFromStorageForUser,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

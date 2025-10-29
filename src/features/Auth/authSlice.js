@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode"; 
+import { setActiveUserKey, clearActiveUserKey } from "../utils/userStorage";
 
 const API_URL = "https://api.escuelajs.co/api/v1/auth/login";
 
@@ -19,6 +20,7 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
+
 
 export const fetchProfile = createAsyncThunk(
   "auth/fetchProfile",
@@ -68,6 +70,7 @@ const authSlice = createSlice({
       state.token = null;
       localStorage.removeItem("google_user")
       localStorage.removeItem("token");
+      clearActiveUserKey();
     },
   },
   extraReducers: (builder) => {
@@ -92,6 +95,9 @@ const authSlice = createSlice({
       .addCase(fetchProfile.fulfilled,(state,action) => {
         state.status = "succeeded";
         state.user = action.payload;
+        // Persist a stable user-specific key for scoping local data
+        const key = action.payload?.id || action.payload?.email || action.payload?.sub;
+        if (key) setActiveUserKey(String(key));
       })
       .addCase(fetchProfile.rejected,(state,action) => {
         state.status = "failed";
@@ -105,6 +111,9 @@ const authSlice = createSlice({
         state.status = "succeeded";
         state.token = action.payload.token;
         state.user = action.payload.user;
+        const gUser = action.payload.user;
+        const key = gUser?.sub || gUser?.email;
+        if (key) setActiveUserKey(String(key));
       })
       .addCase(loginWithGoogle.rejected,(state,action) => {
         state.status = "failed";

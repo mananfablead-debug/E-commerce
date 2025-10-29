@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import CustomNavbar from "./components/Navbar";
 import HeroSection from "./Pages/HeroSection";
@@ -20,8 +20,40 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import OrderHistoryPage from "./Pages/OrderHistoryPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
+import Wishlist from "./Pages/Wishlist";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProfile } from "./features/Auth/authSlice";
+import { reloadFromStorageForUser as reloadCart } from "./features/Cart/CartSlice";
+import { reloadFromStorageForUser as reloadWishlist } from "./features/Wishlist/wishlistSlice";
 
 function App() {
+  const dispatch = useDispatch();
+  const { token, user } = useSelector((s) => s.auth);
+
+  // One-time cleanup: remove legacy global keys to prevent cross-user leakage
+  useEffect(() => {
+    ["cart", "orders", "wishlist"].forEach((k) => {
+      try { localStorage.removeItem(k); } catch {}
+    });
+    dispatch(reloadCart());
+    dispatch(reloadWishlist());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (token) {
+      // Ensure profile is loaded and storage is switched to current user
+      dispatch(fetchProfile()).finally(() => {
+        dispatch(reloadCart());
+        dispatch(reloadWishlist());
+      });
+    } else {
+      // Guest context
+      dispatch(reloadCart());
+      dispatch(reloadWishlist());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, user?.id]);
   return (
     <GoogleOAuthProvider clientId="380793290073-e2v4i24c8ivivd36om6f86th3vtn4a3a.apps.googleusercontent.com">
       <CustomNavbar />
@@ -105,6 +137,14 @@ function App() {
           element={
             <ProtectedRoute>
               <OrderHistoryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/wishlist"
+          element={
+            <ProtectedRoute>
+              <Wishlist/>
             </ProtectedRoute>
           }
         />

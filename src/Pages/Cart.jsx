@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { removeFromCart, updateQuantity } from "../features/cart/cartSlice";
+import { removeFromCart, updateQuantity,clearCart } from "../features/cart/cartSlice";
 import { useNavigate } from "react-router-dom";
 import Lottie from "lottie-react";
 import emptyCartAnimation from "../assets/Shopping Cart Loader.json";
@@ -30,11 +30,19 @@ const CartPage = () => {
     setShowModal(false);
   };
 
-  const handleConfirmRemove = (item) => {
+const handleConfirmRemove = (item) => {
+  if (item === "all") {
+    dispatch(clearCart());
+  } else {
     dispatch(removeFromCart({ id: item.id, size: item.size }));
-    handleCloseModal();
-  };
+  }
+  handleCloseModal();
+};
 
+  const handleRemoveCart = () => {
+    dispatch(clearCart());
+    handleCloseModal();
+  }
   const handleQuantityChange = (id, size, quantity) => {
     if (quantity > 0) dispatch(updateQuantity({ id, size, quantity }));
   };
@@ -65,11 +73,20 @@ const CartPage = () => {
                 </p>
               </div>
             </div>
-            <button
+            {/* <button
               onClick={() => navigate("/orders")}
               className="text-sm bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-full transition-all duration-300"
             >
               View Order History
+            </button> */}
+            <button
+              onClick={() => {
+                setItemToRemove("all"); 
+                setShowModal(true);
+              }}
+              className="text-sm bg-red-100 text-red-600 hover:bg-red-200 px-4 py-2 rounded-full transition-all duration-300"
+            >
+              Clear Cart
             </button>
           </div>
         </div>

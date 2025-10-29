@@ -1,20 +1,31 @@
 import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Lottie from "lottie-react";
 import successAnimation from "../assets/Add To Cart Success.json";
-import { clearCart, completeOrder } from "../features/cart/cartSlice";
+import { completeOrder } from "../features/cart/cartSlice";
+import { fetchProfile } from "../features/Auth/authSlice";
 import { resetPayment } from "../features/Payment/PaymentSlice";
 import { useNavigate } from "react-router-dom";
 
 const SuccessPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { token, user } = useSelector((s) => s.auth);
 
   useEffect(() => {
-    //  Add the completed order to history before clearing cart
-    dispatch(completeOrder());
-    dispatch(resetPayment());
-  }, [dispatch]);
+    // Ensure the active user key is established before saving the order
+    const ensureProfileThenComplete = async () => {
+      try {
+        if (token && !user) {
+          await dispatch(fetchProfile());
+        }
+      } finally {
+        dispatch(completeOrder());
+        dispatch(resetPayment());
+      }
+    };
+    ensureProfileThenComplete();
+  }, [dispatch, token, user]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-green-50 p-6">

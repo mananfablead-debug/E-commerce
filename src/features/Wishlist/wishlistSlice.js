@@ -1,8 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { makeUserScopedKey } from "../utils/userStorage";
 
 const loadWishlistFromLocalStorage = () => {
   try {
-    const serializedWishlist = localStorage.getItem("wishlist");
+    const serializedWishlist = localStorage.getItem(makeUserScopedKey("wishlist"));
     if (!serializedWishlist) return [];
     return JSON.parse(serializedWishlist);
   } catch (e) {
@@ -13,7 +14,7 @@ const loadWishlistFromLocalStorage = () => {
 
 const saveWishlistToLocalStorage = (items) => {
   try {
-    localStorage.setItem("wishlist", JSON.stringify(items));
+    localStorage.setItem(makeUserScopedKey("wishlist"), JSON.stringify(items));
   } catch (e) {
     console.error("Could not save wishlist to localStorage", e);
   }
@@ -27,6 +28,9 @@ const wishlistSlice = createSlice({
   name: "wishlist",
   initialState,
   reducers: {
+    reloadFromStorageForUser: (state) => {
+      state.items = loadWishlistFromLocalStorage();
+    },
     addToWishlist: (state, action) => {
       const exists = state.items.find((i) => i.id === action.payload.id);
       
@@ -44,7 +48,7 @@ const wishlistSlice = createSlice({
   },
 });
 
-export const { addToWishlist, removeFromWishlist, clearWishlist } =
+export const { addToWishlist, removeFromWishlist, clearWishlist, reloadFromStorageForUser } =
   wishlistSlice.actions;
 
 export default wishlistSlice.reducer;

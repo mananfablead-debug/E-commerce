@@ -7,6 +7,8 @@ import { addToWishlist } from "../features/Wishlist/wishlistSlice";
 import { fetchProfile } from "../features/Auth/authSlice";
 import Pagination from "@mui/material/Pagination";
 import LoadingScreen from "../components/LoadingScreen";
+import { addToCart, updateQuantity, removeFromCart } from "../features/cart/cartSlice";
+import toast from "react-hot-toast";
 
 export const AllProductsPage = () => {
   const dispatch = useDispatch();
@@ -15,6 +17,7 @@ export const AllProductsPage = () => {
   const { items, status, error } = useSelector((state) => state.products);
   const wishlistItems = useSelector((state) => state.wishlist.items);
   const { user } = useSelector((state) => state.auth);
+  const cartItems = useSelector((state) => state.cart.items);
 
   const [searchCategory, setSearchCategory] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -82,6 +85,47 @@ export const AllProductsPage = () => {
   const endIndex = startIndex + limit;
   const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
 
+  const handleAddToCart = (product) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setShowLoginPrompt(true);
+      setTimeout(() => setShowLoginPrompt(false), 2000);
+      return;
+    }
+
+    dispatch(
+      addToCart({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        image: Array.isArray(product.images)
+          ? product.images[0]
+          : product.category.image,
+        size: "M",
+      })
+    );
+
+    toast.success(`${product.title} added to cart 🛒`);
+  };
+
+  const handleIncrease = (product) => {
+    dispatch(
+      updateQuantity({ id: product.id, size: "M", quantity: product.quantity + 1 })
+    );
+  };
+
+  const handleDecrease = (product) => {
+    if (product.quantity === 1) {
+      dispatch(removeFromCart({ id: product.id, size: "M" }));
+      toast.error(`${product.title} removed from cart ❌`);
+    } else {
+      dispatch(
+        updateQuantity({ id: product.id, size: "M", quantity: product.quantity - 1 })
+      );
+    }
+  };
+
+
   const handleAddToWishlist = (product) => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -110,7 +154,6 @@ export const AllProductsPage = () => {
   return (
     <section className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-50 pt-24 pb-16 px-4 sm:px-6 md:px-12">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8">
-        {/* Filter Toggle for Mobile */}
         <div className="flex justify-between items-center md:hidden mb-4">
           <h2 className="text-2xl font-bold text-gray-800">All Products</h2>
           <button
@@ -123,9 +166,8 @@ export const AllProductsPage = () => {
 
         {/* Sidebar (Filters) */}
         <aside
-          className={`${
-            filterOpen ? "block" : "hidden"
-          } md:block bg-white shadow-md rounded-xl p-5 h-fit md:w-1/4 sticky top-28 transition-all duration-300`}
+          className={`${filterOpen ? "block" : "hidden"
+            } md:block bg-white shadow-md rounded-xl p-5 h-fit md:w-1/4 sticky top-28 transition-all duration-300`}
         >
           <h3 className="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">
             Filters
@@ -171,9 +213,6 @@ export const AllProductsPage = () => {
               onChange={(e) => setPriceFilter(e.target.value)}
               className="w-full px-3 py-2 border rounded-full text-sm focus:ring-2 focus:ring-purple-500 outline-none"
             >
-              <option value="">All Prices</option>
-              <option value="lowToHigh">Low to High</option>
-              <option value="highToLow">High to Low</option>
               <option value="0-50">$0 - $50</option>
               <option value="50-100">$50 - $100</option>
               <option value="100+">$100+</option>
@@ -188,12 +227,25 @@ export const AllProductsPage = () => {
           </button>
         </aside>
 
-        <div className="flex-1">
+        <div>
           <div className="hidden md:flex justify-between items-center mb-8">
             <h2 className="text-4xl font-bold text-gray-800">All Products</h2>
+            <div>
+            {/* <h4 className="font-semibold text-gray-700 mb-2">Price Range</h4> */}
+            <select
+              value={priceFilter}
+              onChange={(e) => setPriceFilter(e.target.value)}
+              className="w-full px-3 py-2 border rounded-full text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+            >
+              <option value="">All Prices</option>
+              <option value="lowToHigh">Low to High</option>
+              <option value="highToLow">High to Low</option>
+            </select>
+          </div>
+
             <button
               onClick={() => navigate("/")}
-              className="border border-gray-300 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-100 transition"
+              className="border border-gray-300 text-gray-700 px-4 py-2 rounded-pill hover:bg-gray-100 transition"
             >
               ← Back
             </button>
@@ -246,23 +298,57 @@ export const AllProductsPage = () => {
                         </p>
 
                         <div className="flex justify-center gap-3">
-                          <button
-                            onClick={() => navigate(`/products/${product.id}`)}
-                            className="bg-purple-600 text-white px-3 py-1.5 rounded-pill text-sm hover:bg-purple-700 transition"
-                          >
-                            Add To Cart
-                          </button>
+                          {cartItems.some((item) => item.id === product.id && item.size === "M") ? (
+                            <div className="flex items-center gap-3 border border-purple-300 rounded-full px-3 py-1.5">
+                              <button
+                                onClick={() =>
+                                  handleDecrease(
+                                    cartItems.find((i) => i.id === product.id && i.size === "M")
+                                  )
+                                }
+                                className="text-purple-700 font-bold text-lg"
+                              >
+                                −
+                              </button>
+
+                              <span className="font-semibold text-purple-700">
+                                {
+                                  cartItems.find((i) => i.id === product.id && i.size === "M")
+                                    ?.quantity
+                                }
+                              </span>
+
+                              <button
+                                onClick={() =>
+                                  handleIncrease(
+                                    cartItems.find((i) => i.id === product.id && i.size === "M")
+                                  )
+                                }
+                                className="text-purple-700 font-bold text-lg"
+                              >
+                                +
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => handleAddToCart(product)}
+                              className="bg-purple-600 text-white px-3 py-1.5 rounded-pill text-sm hover:bg-purple-700 transition"
+                            >
+                              Add To Cart
+                            </button>
+                          )}
+
                           <button
                             onClick={() => handleAddToWishlist(product)}
-                            className={`px-2.5 py-2 rounded-pill border transition ${
-                              isWishlisted
-                                ? "bg-red-500 text-white border-red-500"
-                                : "border-gray-300 text-gray-500 hover:bg-gray-100"
-                            }`}
+                            className={`px-2.5 py-2 rounded-pill border transition ${wishlistItems.some((item) => item.id === product.id)
+                              ? "bg-red-500 text-white border-red-500"
+                              : "border-gray-300 text-gray-500 hover:bg-gray-100"
+                              }`}
                           >
                             <FaHeart />
                           </button>
                         </div>
+
                       </div>
                     </div>
                   );
