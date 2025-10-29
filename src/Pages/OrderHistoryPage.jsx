@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { deleteOrder, clearOrders } from "../features/cart/cartSlice";
 import toast from "react-hot-toast";
 import ConfirmModal from "../components/ConfirmModal";
+import OrderAnimation from "../assets/Order Received imagery.json";
+import Lottie from "lottie-react";
 
 const OrderHistoryPage = () => {
   const navigate = useNavigate();
@@ -41,7 +43,7 @@ const OrderHistoryPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white py-16 px-6 mt-4">
       <div className="max-w-5xl mx-auto">
-        <div className="flex justify-between items-center mb-10">
+        <div className="flex justify-between items-center mb-5">
           <button
             onClick={() => navigate("/products")}
             className="flex items-center gap-2 text-gray-600 hover:text-purple-600 font-medium transition"
@@ -64,13 +66,16 @@ const OrderHistoryPage = () => {
         </h1>
 
         {orders.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl shadow-md">
-            <FaShoppingBag className="text-gray-300 text-6xl mx-auto mb-4" />
+          <div className="text-center py-10 bg-white rounded-2xl shadow-md">
+            {/* <FaShoppingBag className="text-gray-300 text-6xl mx-auto mb-4" /> */}
+            <div className="w-72 h-62  mx-auto">
+            <Lottie animationData={OrderAnimation} loop={true}/>
+            </div>
             <p className="text-gray-600 text-lg mb-2">You have no previous orders yet.</p>
             <p className="text-gray-400 mb-6">Place your first order now!</p>
             <button
               onClick={() => navigate("/products")}
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-full transition"
+              className="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-pill transition"
             >
               Browse Products
             </button>

@@ -23,7 +23,7 @@ import PublicRoute from "./components/PublicRoute";
 import Wishlist from "./Pages/Wishlist";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProfile } from "./features/Auth/authSlice";
-import { reloadFromStorageForUser as reloadCart } from "./features/Cart/CartSlice";
+import { reloadFromStorageForUser as reloadCart } from "./features/cart/cartSlice";
 import { reloadFromStorageForUser as reloadWishlist } from "./features/Wishlist/wishlistSlice";
 
 function App() {

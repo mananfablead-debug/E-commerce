@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { removeFromWishlist } from "../features/Wishlist/wishlistSlice";
+import wishlistanimation from "../assets/Wishlist.json";
+import Lottie from "lottie-react";
 import { useNavigate } from "react-router-dom";
-import {
-  FaHeart, FaTrash, FaStar
-} from "react-icons/fa";
+import { FaHeart, FaTrash, FaStar } from "react-icons/fa";
 
 const Wishlist = () => {
   const wishlistItems = useSelector((state) => state.wishlist.items);
@@ -37,6 +37,7 @@ const Wishlist = () => {
 
   return (
     <div className="bg-white rounded-2xl shadow-xl p-8 mt-5">
+      {/* Header */}
       <div className="flex items-center justify-between mb-6 mt-3">
         <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
           <div className="bg-red-100 p-3 rounded-full">
@@ -44,34 +45,39 @@ const Wishlist = () => {
           </div>
           My Wishlist
         </h2>
+
         {wishlistItems.length > 0 && (
           <span className="bg-purple-100 text-purple-700 px-4 py-2 rounded-full font-semibold">
-            {wishlistItems.length} {wishlistItems.length === 1 ? "item" : "items"}
+            {wishlistItems.length}{" "}
+            {wishlistItems.length === 1 ? "item" : "items"}
           </span>
         )}
       </div>
 
+      {/* Empty Wishlist */}
       {wishlistItems.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="bg-gray-100 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FaHeart className="text-gray-400 text-5xl" />
+        <div className="text-center py-12 flex flex-col items-center justify-center">
+          <div className="w-64 h-64 mb-6">
+            <Lottie animationData={wishlistanimation} loop={true} />
           </div>
           <p className="text-gray-500 text-lg mb-2">Your wishlist is empty</p>
           <p className="text-gray-400 mb-6">Start adding items you love!</p>
           <button
             onClick={() => navigate("/products")}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-full transition-all duration-300"
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-pill transition-all duration-300"
           >
             Browse Products
           </button>
         </div>
       ) : (
+        // Wishlist Grid
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {wishlistItems.map((item) => (
             <div
               key={item.id}
               className="bg-gradient-to-br from-gray-50 to-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
             >
+              {/* Image */}
               <div className="relative overflow-hidden">
                 <img
                   onClick={() => navigate(`/products/${item.id}`)}
@@ -84,6 +90,7 @@ const Wishlist = () => {
                 </div>
               </div>
 
+              {/* Content */}
               <div className="p-5">
                 <h4
                   onClick={() => navigate(`/products/${item.id}`)}
@@ -100,7 +107,9 @@ const Wishlist = () => {
                 </div>
 
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-purple-600 font-bold text-2xl">${item.price.toFixed(2)}</p>
+                  <p className="text-purple-600 font-bold text-2xl">
+                    ${item.price.toFixed(2)}
+                  </p>
                   <button
                     onClick={() => handleRemoveWishlist(item)}
                     className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-pill transition-all duration-300 hover:scale-110"
@@ -121,11 +130,17 @@ const Wishlist = () => {
         </div>
       )}
 
-      {/* Modal */}
+      {/* Confirmation Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-90 text-center">
-            <h3 className="text-lg font-bold text-gray-800 mb-2">Remove Item</h3>
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="bg-white rounded-xl shadow-lg p-6 w-90 text-center"
+          >
+            <h3 className="text-lg font-bold text-gray-800 mb-2">
+              Remove Item
+            </h3>
             <p className="text-gray-600 mb-6">
               Are you sure you want to remove this item from your wishlist?
             </p>

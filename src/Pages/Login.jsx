@@ -120,7 +120,7 @@ const LoginPage = () => {
               >
                 {status === "loading" ? "Logging in..." : "Login"}
               </button>
-
+              <div className="mt-2 flex justify-center">
               <GoogleLogin
                 onSuccess={(credentialResponse)=>{
                   dispatch(loginWithGoogle(credentialResponse));
@@ -129,6 +129,7 @@ const LoginPage = () => {
                   console.log("Google Login Falied")
                 }}
               />
+              </div>
             </form>
 
             {error && (
