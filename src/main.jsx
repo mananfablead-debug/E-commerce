@@ -7,6 +7,8 @@ import { store } from './App/Store.js';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import {Toaster} from "react-hot-toast";
+import "leaflet/dist/leaflet.css";
+
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

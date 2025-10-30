@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { FaArrowLeft, FaShoppingBag, FaTrashAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -39,6 +39,10 @@ const OrderHistoryPage = () => {
     }
     handleCloseModal();
   };
+
+    useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });  
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-white py-16 px-6 mt-4">

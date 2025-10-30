@@ -25,6 +25,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchProfile } from "./features/Auth/authSlice";
 import { reloadFromStorageForUser as reloadCart } from "./features/cart/cartSlice";
 import { reloadFromStorageForUser as reloadWishlist } from "./features/Wishlist/wishlistSlice";
+import AddressManager from "./Pages/AddressManager";
 
 function App() {
   const dispatch = useDispatch();
@@ -147,6 +148,13 @@ function App() {
               <Wishlist/>
             </ProtectedRoute>
           }
+        />
+        <Route path="/profile/addresses"
+         element={
+          <ProtectedRoute>
+            <AddressManager />
+         </ProtectedRoute>
+         }
         />
       </Routes>
       <Footer />

@@ -15,7 +15,15 @@
   text-decoration: none;
 }
 
- 
+.cards a{
+  text-decoration: none;
+}
+
+.leaflet-container {
+  z-index: 0 !important;
+  position: relative !important;
+}
+
 .cards{
   border-color: rgb(70, 69, 69) !important;
   /* border-color: #f9fafb !important;

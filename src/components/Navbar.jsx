@@ -22,7 +22,6 @@ const Navbar = () => {
   const isLoggedIn = !!token;
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const handleClick = () => navigate("/login");
 
   const handleProtectedAction = (route) => {
@@ -68,7 +67,7 @@ const Navbar = () => {
 
   return (
     <nav
-      className="fixed top-0 left-0 w-full z-50 bg-black bg-opacity-90 text-white shadow-lg"
+      className="fixed top-0 left-0 w-full z-50 bg-black bg-opacity-90 text-white shadow-lg "
       style={{
         backgroundImage: `url('https://react-shop-siza.vercel.app/assets/AbstractDesign-5_Gpi5_9.svg')`,
         backgroundSize: "cover",
