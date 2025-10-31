@@ -1,3 +1,52 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --grape: 114, 35, 204;
+}
+
+.light {
+  --background: 245, 245, 245;    /* Tailwind gray-100 */
+  --border: 212, 212, 212;        /* gray-300 */
+  --card: 255, 255, 255;          /* white */
+  --copy-primary: 23, 23, 23;     /* gray-900 */
+  --copy-secondary: 115, 115, 115;/* gray-500 */
+  --cta: 139, 92, 246;            /* violet-500 */
+  --cta-active: 124, 58, 237;     /* violet-600 */
+  --cta-text: 255, 255, 255;      /* white */
+  background: rgba(var(--background));
+}
+
+.dark {
+  --background: 18, 18, 18;
+  --border: 44, 44, 46;
+  --card: 28, 28, 30;
+  --copy-primary: 255, 255, 255;
+  --copy-secondary: 174, 174, 178;
+  --cta: 10, 132, 255;            /* mac blue */
+  --cta-active: 0, 122, 255;
+  --cta-text: 255, 255, 255;
+  --grape: 52, 199, 89;           /* mac green accent */
+  background: rgba(var(--background));
+}
+
+/* Custom rounded-pill class */
+.rounded-pill {
+  border-radius: 9999px;
+}
+
+
+
+
+/* .red {
+  --background: 254, 202, 202;
+  --border: 185, 28, 28;
+  --card: 239, 68, 68;
+  --copy-primary: 250, 250, 250;
+  --copy-secondary: 254, 226, 226;
+  --cta: 250, 250, 250;
+  --cta-active: 254, 226, 226;
+  --cta-text: 239, 68, 68;
+  background: rgba(var(--background));
+} */

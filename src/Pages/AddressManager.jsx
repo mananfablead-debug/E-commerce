@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import L from "leaflet";
 import axios from "axios";
 import {
@@ -11,8 +12,13 @@ import {
   FaLocationArrow,
 } from "react-icons/fa";
 import "leaflet/dist/leaflet.css";
+import {
+  addAddress,
+  deleteAddress,
+  setAddresses,
+} from "../features/Address/addressSlice";
 
-// Fix Leaflet marker icons 
+// ✅ Fix Leaflet marker icons
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -23,8 +29,7 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-
-// Map click subcomponent
+// ✅ Subcomponent for selecting location on map
 const LocationPicker = ({ marker, setMarker, onMapClick }) => {
   useMapEvents({
     click(e) {
@@ -35,22 +40,30 @@ const LocationPicker = ({ marker, setMarker, onMapClick }) => {
   return marker ? <Marker position={marker} /> : null;
 };
 
-
 const AddressManager = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { mode } = useSelector((state) => state.theme);
+  const addresses = useSelector((state) => state.address.addresses);
+
   const [marker, setMarker] = useState(null);
   const [address, setAddress] = useState({
     street: "",
     city: "",
     postalCode: "",
   });
-  const [addresses, setAddresses] = useState([]);
   const [loadingLocation, setLoadingLocation] = useState(true);
 
-  // Auto-fetch location
+  // ✅ Fetch saved addresses from localStorage when page loads
+  useEffect(() => {
+    const stored = localStorage.getItem("userAddresses");
+    if (stored) dispatch(setAddresses(JSON.parse(stored)));
+  }, [dispatch]);
+
+  // ✅ Auto-fetch user location
   useEffect(() => {
     if ("geolocation" in navigator) {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: "smooth" });
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const userPos = {
@@ -58,7 +71,7 @@ const AddressManager = () => {
             lng: position.coords.longitude,
           };
           setMarker(userPos);
-          reverseGeocode(userPos); 
+          reverseGeocode(userPos);
           setLoadingLocation(false);
         },
         (error) => {
@@ -68,7 +81,6 @@ const AddressManager = () => {
         }
       );
     } else {
-      console.warn("Geolocation not supported");
       setMarker({ lat: 51.505, lng: -0.09 });
       setLoadingLocation(false);
     }
@@ -94,35 +106,47 @@ const AddressManager = () => {
     }
   };
 
-  // Handle map click 
   const handleMapClick = (coords) => {
     reverseGeocode(coords);
   };
 
+  // ✅ Save new address to Redux + localStorage
   const handleSave = () => {
-    if (!address.street || !marker) return alert("Please select a location!");
+    if (!address.street || !marker)
+      return alert("Please select a location!");
+
     const newAddress = {
       id: Date.now(),
       ...address,
       location: marker,
     };
-    setAddresses((prev) => [...prev, newAddress]);
+
+    dispatch(addAddress(newAddress));
     setAddress({ street: "", city: "", postalCode: "" });
   };
 
+  // ✅ Delete address via Redux
   const handleDelete = (id) => {
-    setAddresses((prev) => prev.filter((addr) => addr.id !== id));
+    dispatch(deleteAddress(id));
   };
 
   if (loadingLocation)
     return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-gray-600">Detecting your location...</p>
+      <div className="flex items-center justify-center h-screen dark:bg-zinc-900 transition-colors">
+        <p className="text-gray-600 dark:text-gray-300 animate-pulse">
+          Detecting your location...
+        </p>
       </div>
     );
 
   return (
-    <div className="max-w-5xl mx-auto py-10 px-6 mt-5">
+    <div
+      className={`max-w-8xl mx-auto py-10 px-6 mt-5 transition-colors duration-500 ${
+        mode === "dark"
+          ? "bg-zinc-900 text-gray-100"
+          : "bg-gray-50 text-gray-900"
+      }`}
+    >
       <button
         onClick={() => navigate(-1)}
         className="flex items-center gap-2 mb-6 text-purple-600 hover:underline"
@@ -130,9 +154,15 @@ const AddressManager = () => {
         <FaArrowLeft /> Back
       </button>
 
-      <h1 className="text-3xl font-bold mb-6 text-gray-800 mt-4 text-center">Manage Addresses</h1>
+      <h1 className="text-3xl font-bold mb-6 mt-4 text-center">
+        Manage Addresses
+      </h1>
 
-      <div className="bg-white p-6 rounded-2xl shadow-lg mb-8">
+      <div
+        className={`p-6 rounded-2xl shadow-lg mb-8 transition-colors duration-500 ${
+          mode === "dark" ? "bg-zinc-800 text-gray-100" : "bg-white"
+        }`}
+      >
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <FaMapMarkerAlt className="text-purple-600" /> Add New Address
         </h2>
@@ -162,11 +192,13 @@ const AddressManager = () => {
             }
           />
         </div>
-        <div className="rounded-lg overflow-hidden shadow-md mb-6 relative transrpent">
+
+        <div className="rounded-lg overflow-hidden shadow-md mb-6 relative">
           <MapContainer
             center={marker}
             zoom={13}
             style={{ height: "400px", width: "100%" }}
+            className="rounded-lg border dark:border-zinc-700"
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
@@ -206,21 +238,25 @@ const AddressManager = () => {
         </button>
       </div>
 
-      {/* Saved Addresses */}
+      {/* ✅ Saved Addresses */}
       {addresses.length > 0 && (
-        <div className="bg-white p-6 rounded-2xl shadow-lg">
+        <div
+          className={`p-6 rounded-2xl shadow-lg transition-colors duration-500 ${
+            mode === "dark" ? "bg-zinc-800 text-gray-100" : "bg-white"
+          }`}
+        >
           <h2 className="text-lg font-semibold mb-4">Saved Addresses</h2>
           <div className="space-y-4">
             {addresses.map((addr) => (
               <div
                 key={addr.id}
-                className="flex justify-between items-center border rounded-lg p-4 hover:shadow-md transition-all"
+                className="flex justify-between items-center border rounded-lg p-4 hover:shadow-md transition-all dark:border-zinc-700"
               >
                 <div>
-                  <p className="font-semibold text-gray-800">
+                  <p className="font-semibold">
                     {addr.street}, {addr.city}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {addr.postalCode} — Lat: {addr.location.lat.toFixed(3)}, Lng:{" "}
                     {addr.location.lng.toFixed(3)}
                   </p>

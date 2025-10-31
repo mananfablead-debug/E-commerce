@@ -18,6 +18,7 @@ export const AllProductsPage = () => {
   const wishlistItems = useSelector((state) => state.wishlist.items);
   const { user } = useSelector((state) => state.auth);
   const cartItems = useSelector((state) => state.cart.items);
+  const mode = useSelector((state) => state.theme.mode); // 👈 global dark mode
 
   const [searchCategory, setSearchCategory] = useState("");
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -43,9 +44,7 @@ export const AllProductsPage = () => {
 
   const categories = [
     ...new Set(items.map((item) => item.category?.name || "Unknown")),
-  ].filter((cat) =>
-    cat.toLowerCase().includes(searchCategory.toLowerCase())
-  );
+  ].filter((cat) => cat.toLowerCase().includes(searchCategory.toLowerCase()));
 
   const toggleCategory = (category) => {
     setSelectedCategories((prev) =>
@@ -125,7 +124,6 @@ export const AllProductsPage = () => {
     }
   };
 
-
   const handleAddToWishlist = (product) => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -152,24 +150,52 @@ export const AllProductsPage = () => {
   };
 
   return (
-    <section className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-50 pt-24 pb-16 px-4 sm:px-6 md:px-12">
+    <section
+      className={`min-h-screen pt-24 pb-16 px-4 sm:px-6 md:px-12 transition-colors duration-500 ${
+        mode === "dark"
+          ? "bg-[rgba(var(--background))] text-[rgba(var(--copy-primary))]"
+          : "bg-gradient-to-b from-gray-100 to-gray-50 text-gray-900"
+      }`}
+    >
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8">
+        {/* Mobile header */}
         <div className="flex justify-between items-center md:hidden mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">All Products</h2>
+          <h2
+            className={`text-2xl font-bold ${
+              mode === "dark"
+                ? "text-[rgba(var(--copy-primary))]"
+                : "text-gray-800"
+            }`}
+          >
+            All Products
+          </h2>
           <button
             onClick={() => setFilterOpen(!filterOpen)}
-            className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-full text-sm hover:bg-purple-700 transition"
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm transition ${
+              mode === "dark"
+                ? "bg-[rgba(var(--cta))] text-[rgba(var(--cta-text))] hover:bg-[rgba(var(--cta-active))]"
+                : "bg-purple-600 text-white hover:bg-purple-700"
+            }`}
           >
             {filterOpen ? <FaTimes /> : <FaFilter />} Filters
           </button>
         </div>
 
-        {/* Sidebar (Filters) */}
+        {/* Sidebar Filters */}
         <aside
-          className={`${filterOpen ? "block" : "hidden"
-            } md:block bg-white shadow-md rounded-xl p-5 h-fit md:w-1/4 sticky top-28 transition-all duration-300`}
+          className={`${filterOpen ? "block" : "hidden"} md:block shadow-md rounded-xl p-5 h-fit md:w-1/4 sticky top-28 transition-all duration-300 ${
+            mode === "dark"
+              ? "bg-[rgba(var(--card))] border border-[rgba(var(--border))]"
+              : "bg-white"
+          }`}
         >
-          <h3 className="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">
+          <h3
+            className={`text-2xl font-bold mb-4 border-b pb-2 ${
+              mode === "dark"
+                ? "text-[rgba(var(--copy-primary))]"
+                : "text-gray-800"
+            }`}
+          >
             Filters
           </h3>
 
@@ -180,18 +206,32 @@ export const AllProductsPage = () => {
               placeholder="Search category..."
               value={searchCategory}
               onChange={(e) => setSearchCategory(e.target.value)}
-              className="w-full px-4 py-2 border rounded-full text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+              className={`w-full px-4 py-2 border rounded-full text-sm outline-none focus:ring-2 ${
+                mode === "dark"
+                  ? "bg-[rgba(var(--background))] border-[rgba(var(--border))] text-[rgba(var(--copy-primary))] focus:ring-[rgba(var(--cta))]"
+                  : "focus:ring-purple-500"
+              }`}
             />
           </div>
 
           {/* Categories */}
           <div className="mb-6">
-            <h4 className="font-semibold text-gray-700 mb-2">Categories</h4>
+            <h4
+              className={`font-semibold mb-2 ${
+                mode === "dark"
+                  ? "text-[rgba(var(--copy-secondary))]"
+                  : "text-gray-700"
+              }`}
+            >
+              Categories
+            </h4>
             <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-1">
               {categories.map((cat) => (
                 <label
                   key={cat}
-                  className="flex items-center gap-2 px-3 rounded-lg hover:bg-gray-100 transition truncate"
+                  className={`flex items-center gap-2 px-3 rounded-lg transition truncate ${
+                    mode === "dark" ? "hover:bg-[rgba(var(--border))]" : "hover:bg-gray-100"
+                  }`}
                 >
                   <input
                     type="checkbox"
@@ -207,11 +247,23 @@ export const AllProductsPage = () => {
 
           {/* Price Filter */}
           <div className="mb-6">
-            <h4 className="font-semibold text-gray-700 mb-2">Price Range</h4>
+            <h4
+              className={`font-semibold mb-2 ${
+                mode === "dark"
+                  ? "text-[rgba(var(--copy-secondary))]"
+                  : "text-gray-700"
+              }`}
+            >
+              Price Range
+            </h4>
             <select
               value={priceFilter}
               onChange={(e) => setPriceFilter(e.target.value)}
-              className="w-full px-3 py-2 border rounded-full text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+              className={`w-full px-3 py-2 border rounded-full text-sm outline-none focus:ring-2 ${
+                mode === "dark"
+                  ? "bg-[rgba(var(--background))] border-[rgba(var(--border))] text-[rgba(var(--copy-primary))] focus:ring-[rgba(var(--cta))]"
+                  : "focus:ring-purple-500"
+              }`}
             >
               <option value="0-50">$0 - $50</option>
               <option value="50-100">$50 - $100</option>
@@ -221,31 +273,52 @@ export const AllProductsPage = () => {
 
           <button
             onClick={clearCategories}
-            className="w-full bg-purple-600 text-white font-semibold px-4 py-2 rounded-full hover:bg-purple-700 transition"
+            className={`w-full font-semibold px-4 py-2 rounded-pill transition ${
+              mode === "dark"
+                ? "bg-[rgba(var(--cta))] text-[rgba(var(--cta-text))] hover:bg-[rgba(var(--cta-active))]"
+                : "bg-purple-600 text-white hover:bg-purple-700"
+            }`}
           >
             Clear Filters
           </button>
         </aside>
 
-        <div>
+        {/* Products Section */}
+        <div className="flex-1">
           <div className="hidden md:flex justify-between items-center mb-8">
-            <h2 className="text-4xl font-bold text-gray-800">All Products</h2>
-            <div>
-            {/* <h4 className="font-semibold text-gray-700 mb-2">Price Range</h4> */}
-            <select
-              value={priceFilter}
-              onChange={(e) => setPriceFilter(e.target.value)}
-              className="w-full px-3 py-2 border rounded-full text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+            <h2
+              className={`text-4xl font-bold ${
+                mode === "dark"
+                  ? "text-[rgba(var(--copy-primary))]"
+                  : "text-gray-800"
+              }`}
             >
-              <option value="">All Prices</option>
-              <option value="lowToHigh">Low to High</option>
-              <option value="highToLow">High to Low</option>
-            </select>
-          </div>
+              All Products
+            </h2>
+
+            <div>
+              <select
+                value={priceFilter}
+                onChange={(e) => setPriceFilter(e.target.value)}
+                className={`w-full px-3 py-2 border rounded-full text-sm outline-none focus:ring-2 ${
+                  mode === "dark"
+                    ? "bg-[rgba(var(--background))] border-[rgba(var(--border))] text-[rgba(var(--copy-primary))] focus:ring-[rgba(var(--cta))]"
+                    : "focus:ring-purple-500"
+                }`}
+              >
+                <option value="">All Prices</option>
+                <option value="lowToHigh">Low to High</option>
+                <option value="highToLow">High to Low</option>
+              </select>
+            </div>
 
             <button
               onClick={() => navigate("/")}
-              className="border border-gray-300 text-gray-700 px-4 py-2 rounded-pill hover:bg-gray-100 transition"
+              className={`border px-4 py-2 rounded-pill transition ${
+                mode === "dark"
+                  ? "border-[rgba(var(--border))] text-[rgba(var(--copy-secondary))] hover:bg-[rgba(var(--border))]"
+                  : "border-gray-300 text-gray-700 hover:bg-gray-100"
+              }`}
             >
               ← Back
             </button>
@@ -271,7 +344,11 @@ export const AllProductsPage = () => {
                   return (
                     <div
                       key={product.id}
-                      className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-transform hover:-translate-y-1"
+                      className={`group rounded-2xl overflow-hidden shadow-md hover:shadow-lg transition-transform hover:-translate-y-1 ${
+                        mode === "dark"
+                          ? "bg-[rgba(var(--card))]"
+                          : "bg-white"
+                      }`}
                     >
                       <img
                         onClick={() => navigate(`/products/${product.id}`)}
@@ -286,24 +363,47 @@ export const AllProductsPage = () => {
                       <div className="p-4 text-center">
                         <h3
                           onClick={() => navigate(`/products/${product.id}`)}
-                          className="font-semibold text-lg text-gray-900 truncate cursor-pointer"
+                          className={`font-semibold text-lg truncate cursor-pointer ${
+                            mode === "dark"
+                              ? "text-[rgba(var(--copy-primary))]"
+                              : "text-gray-900"
+                          }`}
                         >
                           {product.title}
                         </h3>
-                        <p className="text-sm text-gray-500 mb-1">
+                        <p
+                          className={`text-sm mb-1 ${
+                            mode === "dark"
+                              ? "text-[rgba(var(--copy-secondary))]"
+                              : "text-gray-500"
+                          }`}
+                        >
                           {product.category?.name}
                         </p>
-                        <p className="text-xl font-bold text-purple-700 mb-3">
+                        <p
+                          className={`text-xl font-bold mb-3 ${
+                            mode === "dark"
+                              ? "text-[rgba(var(--cta))]"
+                              : "text-purple-700"
+                          }`}
+                        >
                           ${product.price.toFixed(2)}
                         </p>
 
                         <div className="flex justify-center gap-3">
-                          {cartItems.some((item) => item.id === product.id && item.size === "M") ? (
+                          {cartItems.some(
+                            (item) =>
+                              item.id === product.id && item.size === "M"
+                          ) ? (
                             <div className="flex items-center gap-3 border border-purple-300 rounded-full px-3 py-1.5">
                               <button
                                 onClick={() =>
                                   handleDecrease(
-                                    cartItems.find((i) => i.id === product.id && i.size === "M")
+                                    cartItems.find(
+                                      (i) =>
+                                        i.id === product.id &&
+                                        i.size === "M"
+                                    )
                                   )
                                 }
                                 className="text-purple-700 font-bold text-lg"
@@ -313,15 +413,21 @@ export const AllProductsPage = () => {
 
                               <span className="font-semibold text-purple-700">
                                 {
-                                  cartItems.find((i) => i.id === product.id && i.size === "M")
-                                    ?.quantity
+                                  cartItems.find(
+                                    (i) =>
+                                      i.id === product.id && i.size === "M"
+                                  )?.quantity
                                 }
                               </span>
 
                               <button
                                 onClick={() =>
                                   handleIncrease(
-                                    cartItems.find((i) => i.id === product.id && i.size === "M")
+                                    cartItems.find(
+                                      (i) =>
+                                        i.id === product.id &&
+                                        i.size === "M"
+                                    )
                                   )
                                 }
                                 className="text-purple-700 font-bold text-lg"
@@ -332,7 +438,11 @@ export const AllProductsPage = () => {
                           ) : (
                             <button
                               onClick={() => handleAddToCart(product)}
-                              className="bg-purple-600 text-white px-3 py-1.5 rounded-pill text-sm hover:bg-purple-700 transition"
+                              className={`px-3 py-1.5 rounded-pill text-sm transition ${
+                                mode === "dark"
+                                  ? "bg-[rgba(var(--cta))] text-[rgba(var(--cta-text))] hover:bg-[rgba(var(--cta-active))]"
+                                  : "bg-purple-600 text-white hover:bg-purple-700"
+                              }`}
                             >
                               Add To Cart
                             </button>
@@ -340,15 +450,17 @@ export const AllProductsPage = () => {
 
                           <button
                             onClick={() => handleAddToWishlist(product)}
-                            className={`px-2.5 py-2 rounded-pill border transition ${wishlistItems.some((item) => item.id === product.id)
-                              ? "bg-red-500 text-white border-red-500"
-                              : "border-gray-300 text-gray-500 hover:bg-gray-100"
-                              }`}
+                            className={`px-2.5 py-2 rounded-pill border transition ${
+                              isWishlisted
+                                ? "bg-red-500 text-white border-red-500"
+                                : mode === "dark"
+                                ? "border-[rgba(var(--border))] text-[rgba(var(--copy-secondary))] hover:bg-[rgba(var(--border))]"
+                                : "border-gray-300 text-gray-500 hover:bg-gray-100"
+                            }`}
                           >
                             <FaHeart />
                           </button>
                         </div>
-
                       </div>
                     </div>
                   );

@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  FaHeart,
-  FaShoppingCart,
-  FaTrash,
-  FaEdit,
-} from "react-icons/fa";
+import { FaHeart, FaShoppingCart, FaTrash, FaEdit } from "react-icons/fa";
 import { addToCart } from "../features/cart/cartSlice";
 import { addToWishlist } from "../features/Wishlist/wishlistSlice";
-import { deleteProduct } from "../features/Product/productApiSlice"; 
-import { Modal, Button } from "react-bootstrap"; 
+import { deleteProduct } from "../features/Product/productApiSlice";
+import { Modal, Button } from "react-bootstrap";
 import toast from "react-hot-toast";
 
 const ProductDetailPage = () => {
@@ -22,11 +17,12 @@ const ProductDetailPage = () => {
   const { token, user } = useSelector((state) => state.auth);
   const wishlistItems = useSelector((state) => state.wishlist.items);
   const cartItems = useSelector((state) => state.cart.items);
+  const mode = useSelector((state) => state.theme.mode); // 🌙 Global dark mode
 
   const [product, setProduct] = useState(null);
   const [mainImage, setMainImage] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false); 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedSize, setSelectedSize] = useState("M");
 
   useEffect(() => {
@@ -42,7 +38,17 @@ const ProductDetailPage = () => {
   }, [id, items]);
 
   if (!product)
-    return <p className="text-center mt-10 text-gray-700">Loading product...</p>;
+    return (
+      <p
+        className={`text-center mt-10 ${
+          mode === "dark"
+            ? "text-[rgba(var(--copy-primary))]"
+            : "text-gray-700"
+        }`}
+      >
+        Loading product...
+      </p>
+    );
 
   const inCart = cartItems.some(
     (item) => item.id === product.id && item.size === selectedSize
@@ -50,27 +56,6 @@ const ProductDetailPage = () => {
 
   const handleAddToCart = () => {
     if (!token) return setShowLoginModal(true);
-
-    dispatch(
-      addToCart({
-        id: product.id,
-        title: product.title,
-        price: product.price,
-        image: mainImage,
-        size: selectedSize,
-      })
-    );
-  };
-
-const handleDirectAddTocart = () => {
-  if (!token) return setShowLoginModal(true);
-
-  const existing = cartItems.find(
-    (item) => item.id === product.id && item.size === selectedSize
-  );
-
-  if (!existing) {
-
     dispatch(
       addToCart({
         id: product.id,
@@ -81,14 +66,30 @@ const handleDirectAddTocart = () => {
       })
     );
     toast.success(`${product.title} added to cart 🛒`);
-  }
-  navigate("/cart");
-};
+  };
 
+  const handleDirectAddToCart = () => {
+    if (!token) return setShowLoginModal(true);
+    const existing = cartItems.find(
+      (item) => item.id === product.id && item.size === selectedSize
+    );
+    if (!existing) {
+      dispatch(
+        addToCart({
+          id: product.id,
+          title: product.title,
+          price: product.price,
+          image: mainImage,
+          size: selectedSize,
+        })
+      );
+      toast.success(`${product.title} added to cart 🛒`);
+    }
+    navigate("/cart");
+  };
 
   const handleAddToWishlist = () => {
     if (!token) return setShowLoginModal(true);
-
     dispatch(
       addToWishlist({
         id: product.id,
@@ -97,6 +98,7 @@ const handleDirectAddTocart = () => {
         image: mainImage,
       })
     );
+    toast.success(`${product.title} added to wishlist ❤️`);
   };
 
   const handleDelete = () => {
@@ -112,8 +114,15 @@ const handleDirectAddTocart = () => {
   };
 
   return (
-    <div className="min-h-screen text-black py-12 px-6 md:px-20 mt-19">
+    <div
+      className={`min-h-screen py-12 px-6 md:px-20 mt-19 transition-colors duration-500 ${
+        mode === "dark"
+          ? "bg-[rgba(var(--background))] text-[rgba(var(--copy-primary))]"
+          : "text-black bg-white"
+      }`}
+    >
       <div className="flex flex-col md:flex-row gap-12">
+        {/* Left Side – Images */}
         <div className="flex gap-6 md:w-1/2">
           <div className="flex flex-col gap-4">
             {Array.isArray(product.images) &&
@@ -123,10 +132,12 @@ const handleDirectAddTocart = () => {
                   src={img}
                   alt={`thumb-${index}`}
                   onClick={() => setMainImage(img)}
-                  className={`w-20 h-20 object-cover rounded-lg cursor-pointer border-2 ${
+                  className={`w-20 h-20 object-cover rounded-lg cursor-pointer border-2 transition ${
                     mainImage === img
                       ? "border-purple-500"
-                      : "border-transparent"
+                      : mode === "dark"
+                      ? "border-[rgba(var(--border))]"
+                      : "border-gray-200"
                   }`}
                 />
               ))}
@@ -140,16 +151,46 @@ const handleDirectAddTocart = () => {
           </div>
         </div>
 
+        {/* Right Side – Details */}
         <div className="md:w-1/2 flex flex-col justify-between space-y-6">
           <div>
-            <h2 className="text-4xl font-bold mb-3">{product.title}</h2>
-            <p className="text-purple-600 text-3xl font-semibold mb-4">
+            <h2
+              className={`text-4xl font-bold mb-3 ${
+                mode === "dark" ? "text-[rgba(var(--copy-primary))]" : ""
+              }`}
+            >
+              {product.title}
+            </h2>
+
+            <p
+              className={`text-3xl font-semibold mb-4 ${
+                mode === "dark"
+                  ? "text-[rgba(var(--cta))]"
+                  : "text-purple-600"
+              }`}
+            >
               ${product.price.toFixed(2)}
             </p>
-            <p className="text-gray-800 mb-6">{product.description}</p>
 
+            <p
+              className={`mb-6 ${
+                mode === "dark"
+                  ? "text-[rgba(var(--copy-secondary))]"
+                  : "text-gray-800"
+              }`}
+            >
+              {product.description}
+            </p>
+
+            {/* Size Selection */}
             <div className="mb-6">
-              <p className="block mb-2 text-gray-500 font-semibold">
+              <p
+                className={`block mb-2 font-semibold ${
+                  mode === "dark"
+                    ? "text-[rgba(var(--copy-secondary))]"
+                    : "text-gray-500"
+                }`}
+              >
                 Select Size:
               </p>
               <div className="flex gap-3">
@@ -160,56 +201,84 @@ const handleDirectAddTocart = () => {
                     className={`w-12 h-12 flex items-center justify-center rounded-pill border-2 font-semibold transition-colors ${
                       selectedSize === size
                         ? "bg-purple-600 text-white border-purple-600"
-                        : "bg-gray-100 text-gray-700 border-gray-300 hover:border-purple-500 hover:text-purple-600"
+                        : mode === "dark"
+                        ? "bg-[rgba(var(--card))] border-[rgba(var(--border))] text-[rgba(var(--copy-primary))] hover:border-[rgba(var(--cta))]"
+                        : "bg-gray-100 text-gray-700 border-gray-300 hover:border-purple-500"
                     }`}
                   >
                     {size}
                   </button>
                 ))}
+                 <button
+                onClick={handleAddToWishlist}
+                className={`p-3 rounded-pill  border transition shadow ${
+                  mode === "dark"
+                    ? "border-[rgba(var(--border))] text-[rgba(var(--cta))] hover:bg-[rgba(var(--border))]"
+                    : "border-purple-500 hover:bg-purple-700"
+                }`}
+              >
+                <FaHeart className="text-purple-500 text-xl" />
+              </button>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 mb-8">
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-4 mb-8">
               {inCart ? (
                 <button
                   onClick={() => navigate("/cart")}
-                  className="flex items-center justify-center gap-2 bg-green-600 text-white px-6 py-3 w-full rounded-pill hover:bg-green-700 transition font-semibold shadow-lg"
+                  className="flex items-center justify-center gap-2 bg-green-600 text-white px-6 py-3 w-full rounded-full hover:bg-green-700 transition font-semibold shadow-lg"
                 >
                   Go to Cart
                 </button>
               ) : (
                 <button
                   onClick={handleAddToCart}
-                  className="flex items-center justify-center gap-2 bg-yellow-600 text-white px-6 py-3 w-full rounded-pill hover:bg-yellow-700 transition font-semibold shadow-lg"
+                  className={`flex items-center justify-center gap-2 px-6 py-3 w-full rounded-pill transition font-semibold shadow-lg ${
+                    mode === "dark"
+                      ? "bg-[rgba(var(--cta))] text-[rgba(var(--cta-text))] hover:bg-[rgba(var(--cta-active))]"
+                      : "bg-yellow-600 text-white hover:bg-yellow-700"
+                  }`}
                 >
                   <FaShoppingCart /> Add to Cart
                 </button>
               )}
+
               <button
-                onClick={handleDirectAddTocart}
-                className="flex items-center justify-center gap-2 bg-orange-600 text-white px-1 py-3 w-full rounded-pill hover:bg-orange-700 transition font-semibold shadow-lg"
+                onClick={handleDirectAddToCart}
+                className={`flex items-center justify-center gap-2 px-6 py-3 w-full rounded-pill font-semibold shadow-lg transition ${
+                  mode === "dark"
+                    ? "bg-orange-500 text-white hover:bg-orange-600"
+                    : "bg-orange-600 text-white hover:bg-orange-700"
+                }`}
               >
                 Buy Now
               </button>
-              <button
+
+              {/* <button
                 onClick={handleAddToWishlist}
-                className="p-3 rounded-pill border border-purple-500 hover:bg-purple-700 transition shadow"
+                className={`p-3 rounded-full border transition shadow ${
+                  mode === "dark"
+                    ? "border-[rgba(var(--border))] text-[rgba(var(--cta))] hover:bg-[rgba(var(--border))]"
+                    : "border-purple-500 hover:bg-purple-700"
+                }`}
               >
                 <FaHeart className="text-purple-500 text-xl" />
-              </button>
+              </button> */}
             </div>
 
+            {/* Admin Buttons */}
             {user?.role === "admin" && (
               <div className="flex gap-3 mt-4">
                 <button
                   onClick={() => navigate(`/edit-product/${product.id}`)}
-                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-pill transition shadow"
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full transition shadow"
                 >
                   <FaEdit /> Edit Product
                 </button>
                 <button
                   onClick={() => setShowDeleteModal(true)}
-                  className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-pill transition shadow"
+                  className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full transition shadow"
                 >
                   <FaTrash /> Delete Product
                 </button>
@@ -219,8 +288,12 @@ const handleDirectAddTocart = () => {
         </div>
       </div>
 
-
-      <Modal show={showLoginModal} onHide={() => setShowLoginModal(false)} centered>
+      {/* Login Modal */}
+      <Modal
+        show={showLoginModal}
+        onHide={() => setShowLoginModal(false)}
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>Login Required</Modal.Title>
         </Modal.Header>
@@ -237,7 +310,12 @@ const handleDirectAddTocart = () => {
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+      {/* Delete Confirmation Modal */}
+      <Modal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>Confirm Delete</Modal.Title>
         </Modal.Header>

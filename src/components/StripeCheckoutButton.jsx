@@ -1,19 +1,26 @@
 import { useDispatch, useSelector } from "react-redux";
-import { startPayment, paymentError} from "../features/Payment/PaymentSlice";
-// import { completeOrder } from "../features/Cart/CartSlice"
-// import { useNavigate } from "react-router-dom";
+import { startPayment, paymentError } from "../features/Payment/PaymentSlice";
+// import { completeOrder } from "../features/cart/cartSlice";
 
 export const StripeCheckoutButton = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
   const paymentStatus = useSelector((state) => state.payment.status);
+  const selectedAddress = useSelector((state) => state.address.selectedAddress);
 
   const paymentLink = "https://buy.stripe.com/test_3cI8wO2VB42Le4feYU6sw00";
 
   const handleCheckout = () => {
     if (cartItems.length === 0) return;
 
+    // ✅ Don't create order yet — just start payment
+    if (!selectedAddress) {
+      alert("Please select a delivery address before proceeding to payment.");
+      return;
+    }
+
     dispatch(startPayment());
+
     try {
       window.location.href = paymentLink;
     } catch (err) {
@@ -21,13 +28,10 @@ export const StripeCheckoutButton = () => {
     }
   };
 
-  // const navigate = useNavigate();
-  // const handleSuccess = () => {
-  //   dispatch(completeOrder());
-  //   navigate("/orders")
-  // }
-
-  const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const total = cartItems.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
 
   return (
     <button
@@ -39,7 +43,9 @@ export const StripeCheckoutButton = () => {
           : ""
       }`}
     >
-      {paymentStatus === "processing" ? "Redirecting..." : `Pay $${total.toFixed(2)}`}
+      {paymentStatus === "processing"
+        ? "Redirecting..."
+        : `Pay $${total.toFixed(2)}`}
     </button>
   );
 };

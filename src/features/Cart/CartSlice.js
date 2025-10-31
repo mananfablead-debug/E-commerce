@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { makeUserScopedKey } from "../utils/userStorage";
+import { selectAddress } from "../Address/addressSlice";
 
 const loadCartFromLocalStorage = () => {
   try {
@@ -82,26 +83,32 @@ const cartSlice = createSlice({
       localStorage.setItem(makeUserScopedKey("orders"),JSON.stringify(state.orders));
     },
 
-    completeOrder: (state) => {
-      if (state.items.length === 0) return;
+  completeOrder: (state, action) => {
+  if (state.items.length === 0) return;
 
-      const newOrder = {
-        id: Date.now(),
-        items: [...state.items],
-        total: state.items.reduce(
-          (acc, item) => acc + item.price * item.quantity,
-          0
-        ),
-        date: new Date().toISOString(),
-      };
+  const selectedAddress = action.payload || null; //  get address
 
-      state.orders.push(newOrder);
-      saveOrdersToLocalStorage(state.orders);
+  const newOrder = {
+    id: Date.now(),
+    items: [...state.items],
+    total: state.items.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    ),
+    date: new Date().toISOString(),
+    address: selectedAddress, //  store it here
+  };
 
-      // clear cart after saving order
-      state.items = [];
-      saveCartToLocalStorage(state.items);
-    },
+  state.orders.push(newOrder);
+
+  // Save to localStorage
+  localStorage.setItem(makeUserScopedKey("orders"), JSON.stringify(state.orders));
+
+  // Clear cart
+  state.items = [];
+  localStorage.setItem(makeUserScopedKey("cart"), JSON.stringify([]));
+},
+
   },
 });
 

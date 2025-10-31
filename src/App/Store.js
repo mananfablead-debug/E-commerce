@@ -5,6 +5,8 @@ import cartReducer from "../features/cart/cartSlice";
 import wishlistReducer from "../features/Wishlist/wishlistSlice"
 import paymentReducer from "../features/Payment/PaymentSlice";
 import { setActiveUserKey } from "../features/utils/userStorage";
+import themeReducer from "../features/Theme/themeSlice";
+import addressReducer from "../features/Address/addressSlice";
 
 // Initialize the user-scoped storage key as early as possible to avoid
 // accidentally loading another user's data before profile fetch completes.
@@ -30,5 +32,7 @@ export const store = configureStore({
         cart: cartReducer,
         wishlist: wishlistReducer,
         payment: paymentReducer,
+        theme: themeReducer,
+        address: addressReducer,
     },
 });

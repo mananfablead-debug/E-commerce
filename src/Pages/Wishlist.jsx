@@ -36,18 +36,18 @@ const Wishlist = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl p-8 mt-5">
+    <div className="min-h-screen py-8 px-4 sm:px-8 bg-[rgba(var(--background))] text-[rgba(var(--copy-primary))] transition-colors duration-500  shadow-xl mt-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-6 mt-3">
-        <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
-          <div className="bg-red-100 p-3 rounded-full">
-            <FaHeart className="text-red-500 text-2xl" />
+        <h2 className="text-3xl font-bold flex items-center gap-3">
+          <div className="bg-[rgba(var(--cta),0.1)] p-3 rounded-full">
+            <FaHeart className="text-[rgba(var(--cta))] text-2xl" />
           </div>
           My Wishlist
         </h2>
 
         {wishlistItems.length > 0 && (
-          <span className="bg-purple-100 text-purple-700 px-4 py-2 rounded-full font-semibold">
+          <span className="bg-[rgba(var(--cta),0.1)] text-[rgba(var(--cta))] px-4 py-2 rounded-full font-semibold">
             {wishlistItems.length}{" "}
             {wishlistItems.length === 1 ? "item" : "items"}
           </span>
@@ -60,11 +60,15 @@ const Wishlist = () => {
           <div className="w-64 h-64 mb-6">
             <Lottie animationData={wishlistanimation} loop={true} />
           </div>
-          <p className="text-gray-500 text-lg mb-2">Your wishlist is empty</p>
-          <p className="text-gray-400 mb-6">Start adding items you love!</p>
+          <p className="text-[rgba(var(--copy-secondary))] text-lg mb-2">
+            Your wishlist is empty
+          </p>
+          <p className="text-[rgba(var(--copy-secondary))] mb-6">
+            Start adding items you love!
+          </p>
           <button
             onClick={() => navigate("/products")}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-pill transition-all duration-300"
+            className="bg-[rgba(var(--cta))] hover:bg-[rgba(var(--cta-active))] text-[rgba(var(--cta-text))] px-4 py-2 rounded-pill transition-all duration-300"
           >
             Browse Products
           </button>
@@ -75,7 +79,7 @@ const Wishlist = () => {
           {wishlistItems.map((item) => (
             <div
               key={item.id}
-              className="bg-gradient-to-br from-gray-50 to-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
+              className="bg-[rgba(var(--card))] rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-[rgba(var(--border))]"
             >
               {/* Image */}
               <div className="relative overflow-hidden">
@@ -85,7 +89,7 @@ const Wishlist = () => {
                   alt={item.title}
                   className="w-full h-56 object-cover hover:scale-110 transition-transform duration-300 cursor-pointer"
                 />
-                <div className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                <div className="absolute top-3 right-3 bg-[rgba(var(--cta))] text-[rgba(var(--cta-text))] px-3 py-1 rounded-full text-sm font-semibold">
                   Wishlist
                 </div>
               </div>
@@ -94,7 +98,7 @@ const Wishlist = () => {
               <div className="p-5">
                 <h4
                   onClick={() => navigate(`/products/${item.id}`)}
-                  className="font-bold text-lg text-gray-800 mb-2 line-clamp-2 hover:text-purple-600 transition-colors cursor-pointer"
+                  className="font-bold text-lg mb-2 line-clamp-2 hover:text-[rgba(var(--cta))] transition-colors cursor-pointer"
                 >
                   {item.title}
                 </h4>
@@ -103,11 +107,13 @@ const Wishlist = () => {
                   {[...Array(5)].map((_, i) => (
                     <FaStar key={i} className="text-yellow-400 text-sm" />
                   ))}
-                  <span className="text-gray-500 text-sm ml-1">(5.0)</span>
+                  <span className="text-[rgba(var(--copy-secondary))] text-sm ml-1">
+                    (5.0)
+                  </span>
                 </div>
 
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-purple-600 font-bold text-2xl">
+                  <p className="text-[rgba(var(--cta))] font-bold text-2xl">
                     ${item.price.toFixed(2)}
                   </p>
                   <button
@@ -120,7 +126,7 @@ const Wishlist = () => {
 
                 <button
                   onClick={() => navigate(`/products/${item.id}`)}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 rounded-pill font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
+                  className="w-full bg-gradient-to-r from-[rgba(var(--cta))] to-pink-600 text-[rgba(var(--cta-text))] py-2 rounded-pill font-semibold hover:from-[rgba(var(--cta-active))] hover:to-pink-700 transition-all duration-300"
                 >
                   View Details
                 </button>
@@ -136,12 +142,12 @@ const Wishlist = () => {
           <div
             role="dialog"
             aria-modal="true"
-            className="bg-white rounded-xl shadow-lg p-6 w-90 text-center"
+            className="bg-[rgba(var(--card))] rounded-xl shadow-lg p-6 w-90 text-center"
           >
-            <h3 className="text-lg font-bold text-gray-800 mb-2">
+            <h3 className="text-lg font-bold mb-2 text-[rgba(var(--copy-primary))]">
               Remove Item
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-[rgba(var(--copy-secondary))] mb-6">
               Are you sure you want to remove this item from your wishlist?
             </p>
             <div className="flex justify-center gap-3">
@@ -153,7 +159,7 @@ const Wishlist = () => {
               </button>
               <button
                 onClick={handleCloseModal}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-pill transition"
+                className="bg-[rgba(var(--border),0.3)] hover:bg-[rgba(var(--border),0.5)] text-[rgba(var(--copy-primary))] px-4 py-2 rounded-pill transition"
               >
                 Cancel
               </button>
